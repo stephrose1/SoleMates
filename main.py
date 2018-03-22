@@ -15,3 +15,5 @@ while 1:
 
     screen.fill(black)
     pygame.display.flip()
+
+print('hello')
