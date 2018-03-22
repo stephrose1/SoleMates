@@ -1,0 +1,2 @@
+pygame==1.9.3
+PygameGUILib==0.4a6
