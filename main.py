@@ -27,12 +27,12 @@ while 1:
     player_debug_label = system_font.render(str(player), True, (255, 0, 0))
 
     player.update()
-    player_sprite = player.render()
+    player_sprite, player_pos = player.render()
 
     screen.fill(black)
     screen.blit(fps_label, (0, 0))
     screen.blit(player_debug_label, (0, 10))
-    screen.blit(player_sprite, player.pos)
+    screen.blit(player_sprite, player_pos)
 
     pygame.display.flip()
 

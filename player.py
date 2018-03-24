@@ -9,7 +9,8 @@ BACK_KEY = 115
 
 
 class Player:
-    MODEL = [(0, 100), (-50, 0), (50, 0)]
+    MODEL = [(0, math.sqrt(7500)), (-50, 0), (50, 0)]
+    MODEL_CENTER = (0, math.sqrt(7500) / 2)  # center of rotation
     TURN_SPEED = math.pi / 25
     MOVE_SPEED = 6
     COLOUR = (255, 0, 0)
@@ -35,7 +36,7 @@ class Player:
 
     def update(self):
         self.dir += self.turning * Player.TURN_SPEED
-
+        self.dir = math.fmod(self.dir, 2 * math.pi)
         self.compute_vel()
 
         if self.get_speed() > 0:
@@ -46,6 +47,7 @@ class Player:
 
             self.pos = (x_pos, y_pos)
 
+    # !!! TODO: Refactor this into a library
     def render(self):
         # create rotation matrix
         rot = numpy.matlib.matrix(
@@ -56,10 +58,10 @@ class Player:
         points = list()
         # rotate model
         for point in Player.MODEL:
-            (x, y) = point
-            vec = numpy.matlib.matrix((x, y))
+            points.append(numpy.matrix(point) * rot)
 
-            points.append(vec * rot)
+        # rotate center
+        center_vec = numpy.matrix(Player.MODEL_CENTER) * rot
 
         # find bottom left corner
         origin_y = 0
@@ -79,6 +81,11 @@ class Player:
             [[x, y]] = point.tolist()
             polygon_points.append((x - origin_x, y - origin_y))
 
+        # translate center
+        [[center_x, center_y]] = center_vec.tolist()
+        center_x -= origin_x
+        center_y -= origin_y
+
         # get size of bounding box
         max_x = 0
         max_y = 0
@@ -94,7 +101,9 @@ class Player:
         sprite = pygame.Surface((math.ceil(max_x), math.ceil(max_y)))
         pygame.draw.polygon(sprite, Player.COLOUR, polygon_points)
 
-        return sprite
+        (pos_x, pos_y) = self.pos
+        render_pos = (pos_x - center_x, pos_y - center_y)
+        return sprite, render_pos
 
 
     def __repr__(self):
