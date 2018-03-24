@@ -1,15 +1,19 @@
 import math
 import pygame
+import numpy.matlib
 
 LEFT_KEY = 100
 RIGHT_KEY = 97
 FORWARD_KEY = 119
 BACK_KEY = 115
 
-TURN_SPEED = math.pi / 25
-MOVE_SPEED = 6
 
 class Player:
+    MODEL = [(0, 100), (-50, 0), (50, 0)]
+    TURN_SPEED = math.pi / 25
+    MOVE_SPEED = 6
+    COLOUR = (255, 0, 0)
+
     def __init__(self, clock):
         self.pos = (50, 50)
         self.vel = (0, 0)
@@ -24,13 +28,13 @@ class Player:
         return abs(math.sqrt(math.pow(x, 2) + math.pow(x, 2)))
 
     def compute_vel(self):
-        speed = self.moving * MOVE_SPEED
+        speed = self.moving * Player.MOVE_SPEED
         x_vel = math.sin(self.dir) * speed
         y_vel = math.cos(self.dir) * speed
         self.vel = (x_vel, y_vel)
 
     def update(self):
-        self.dir += self.turning * TURN_SPEED
+        self.dir += self.turning * Player.TURN_SPEED
 
         self.compute_vel()
 
@@ -43,7 +47,55 @@ class Player:
             self.pos = (x_pos, y_pos)
 
     def render(self):
-        return pygame.transform.rotate(self.sprite, math.degrees(self.dir))
+        # create rotation matrix
+        rot = numpy.matlib.matrix(
+            ([math.cos(self.dir), -math.sin(self.dir)],
+             [math.sin(self.dir), math.cos(self.dir)])
+        )
+
+        points = list()
+        # rotate model
+        for point in Player.MODEL:
+            (x, y) = point
+            vec = numpy.matlib.matrix((x, y))
+
+            points.append(vec * rot)
+
+        # find bottom left corner
+        origin_y = 0
+        origin_x = 0
+        for point in points:
+            [[x, y]] = point.tolist()
+
+            if x < origin_x:
+                origin_x = x
+
+            if y < origin_y:
+                origin_y = y
+
+        # translate points to origin
+        polygon_points = list()
+        for point in points:
+            [[x, y]] = point.tolist()
+            polygon_points.append((x - origin_x, y - origin_y))
+
+        # get size of bounding box
+        max_x = 0
+        max_y = 0
+        for point in polygon_points:
+            (x, y) = point
+            if x > max_x:
+                max_x = x
+
+            if y > max_y:
+                max_y = y
+
+        # now ready to render
+        sprite = pygame.Surface((math.ceil(max_x), math.ceil(max_y)))
+        pygame.draw.polygon(sprite, Player.COLOUR, polygon_points)
+
+        return sprite
+
 
     def __repr__(self):
         (x_pos, y_pos) = self.pos
