@@ -18,15 +18,22 @@ while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-
+        if event.type == pygame.KEYDOWN:
+            player.handle_keydown(event)
+        if event.type == pygame.KEYUP:
+            player.handle_keyup(event)
 
     fps_label = system_font.render('%.2f' % clock.get_fps(), True, (255, 0, 0))
     player_debug_label = system_font.render(str(player), True, (255, 0, 0))
+
+    player.update()
     player_sprite = player.render()
+
     screen.fill(black)
     screen.blit(fps_label, (0, 0))
     screen.blit(player_debug_label, (0, 10))
     screen.blit(player_sprite, player.pos)
+
     pygame.display.flip()
 
     # 30 FPS

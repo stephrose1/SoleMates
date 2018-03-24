@@ -1,6 +1,13 @@
 import math
 import pygame
 
+LEFT_KEY = 100
+RIGHT_KEY = 97
+FORWARD_KEY = 119
+BACK_KEY = 115
+
+TURN_SPEED = math.pi / 25
+MOVE_SPEED = 6
 
 class Player:
     def __init__(self, clock):
@@ -16,7 +23,17 @@ class Player:
         (x, y) = self.vel
         return abs(math.sqrt(math.pow(x, 2) + math.pow(x, 2)))
 
+    def compute_vel(self):
+        speed = self.moving * MOVE_SPEED
+        x_vel = math.sin(self.dir) * speed
+        y_vel = math.cos(self.dir) * speed
+        self.vel = (x_vel, y_vel)
+
     def update(self):
+        self.dir += self.turning * TURN_SPEED
+
+        self.compute_vel()
+
         if self.get_speed() > 0:
             (x_pos, y_pos) = self.pos
             (x_vel, y_vel) = self.vel
@@ -63,3 +80,19 @@ class Player:
         pygame.draw.polygon(sprite, (255, 0, 0), points)
 
         return sprite
+
+    def handle_keydown(self, event):
+        if event.key == LEFT_KEY:
+            self.turning = -1
+        elif event.key == RIGHT_KEY:
+            self.turning = 1
+        elif event.key == FORWARD_KEY:
+            self.moving = 1
+        elif event.key == BACK_KEY:
+            self.moving = -1
+
+    def handle_keyup(self, event):
+        if event.key == LEFT_KEY or event.key == RIGHT_KEY:
+            self.turning = 0
+        if event.key == FORWARD_KEY or event.key == BACK_KEY:
+            self.moving = 0
