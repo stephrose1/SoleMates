@@ -1,7 +1,7 @@
 import math
 import pygame
 import numpy.matlib
-from point import rotate, translate, bbox
+from point import rotate, translate, bbox, shear_x
 
 LEFT_KEY = 97
 RIGHT_KEY = 100
@@ -78,8 +78,12 @@ class Player:
 
     def render(self):
         """render the player model and return the surface and position on screen where it should be rendered"""
+        # this code is yucky, there must be a better way
         model = [rotate(p, self.dir) for p in Player.MODEL]
         center = rotate(Player.MODEL_CENTER, self.dir)
+
+        model = [shear_x(p, -1) for p in model]
+        center = shear_x(center, -1)
 
         (min_x, min_y, _, _) = bbox(model)
 
@@ -93,7 +97,8 @@ class Player:
 
         (center_x, center_y) = center
         (pos_x, pos_y) = self.pos
-        render_pos = (pos_x - center_x, pos_y - center_y)
+        render_pos = shear_x((pos_x - center_x, pos_y - center_y), -1)
+
         return sprite, render_pos
 
     def __repr__(self):
