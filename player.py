@@ -10,7 +10,7 @@ BACK_KEY = 115
 
 
 class Player:
-    MODEL = [(0, math.sqrt(7500)), (-50, 0), (50, 0)]
+    MODEL = [(10, math.sqrt(7500)), (-10, math.sqrt(7500)), (-50, 0), (50, 0)]
     MODEL_CENTER = (0, math.sqrt(7500) / 2)  # center of rotation
     TURN_SPEED = math.pi / 25
     MOVE_SPEED = 6
@@ -19,7 +19,7 @@ class Player:
     def __init__(self, clock):
         self.pos = (50, 50)
         self.vel = (0, 0)
-        self.dir = math.pi / 4
+        self.dir = math.pi
         self.clock = clock
         self.sprite = Player.create_sprite()
         self.turning = 0
@@ -31,7 +31,7 @@ class Player:
 
     def compute_vel(self):
         speed = self.moving * Player.MOVE_SPEED
-        x_vel = math.sin(self.dir) * speed
+        x_vel = -math.sin(self.dir) * speed
         y_vel = math.cos(self.dir) * speed
         self.vel = (x_vel, y_vel)
 
@@ -48,7 +48,6 @@ class Player:
 
             self.pos = (x_pos, y_pos)
 
-    # !!! TODO: Refactor this into a library
     def render(self):
         model = [rotate(p, self.dir) for p in Player.MODEL]
         center = rotate(Player.MODEL_CENTER, self.dir)
