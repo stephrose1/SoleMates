@@ -1,9 +1,10 @@
 import math
 import pygame
 import numpy.matlib
+from point import rotate, translate, bbox
 
-LEFT_KEY = 100
-RIGHT_KEY = 97
+LEFT_KEY = 97
+RIGHT_KEY = 100
 FORWARD_KEY = 119
 BACK_KEY = 115
 
@@ -49,62 +50,23 @@ class Player:
 
     # !!! TODO: Refactor this into a library
     def render(self):
-        # create rotation matrix
-        rot = numpy.matlib.matrix(
-            ([math.cos(self.dir), -math.sin(self.dir)],
-             [math.sin(self.dir), math.cos(self.dir)])
-        )
+        model = [rotate(p, self.dir) for p in Player.MODEL]
+        center = rotate(Player.MODEL_CENTER, self.dir)
 
-        points = list()
-        # rotate model
-        for point in Player.MODEL:
-            points.append(numpy.matrix(point) * rot)
+        (min_x, min_y, _, _) = bbox(model)
 
-        # rotate center
-        center_vec = numpy.matrix(Player.MODEL_CENTER) * rot
+        model = [translate(p, -min_x, -min_y) for p in model]
+        center = translate(center, -min_x, -min_y)
 
-        # find bottom left corner
-        origin_y = 0
-        origin_x = 0
-        for point in points:
-            [[x, y]] = point.tolist()
+        (_, _, max_x, max_y) = bbox(model)
 
-            if x < origin_x:
-                origin_x = x
-
-            if y < origin_y:
-                origin_y = y
-
-        # translate points to origin
-        polygon_points = list()
-        for point in points:
-            [[x, y]] = point.tolist()
-            polygon_points.append((x - origin_x, y - origin_y))
-
-        # translate center
-        [[center_x, center_y]] = center_vec.tolist()
-        center_x -= origin_x
-        center_y -= origin_y
-
-        # get size of bounding box
-        max_x = 0
-        max_y = 0
-        for point in polygon_points:
-            (x, y) = point
-            if x > max_x:
-                max_x = x
-
-            if y > max_y:
-                max_y = y
-
-        # now ready to render
         sprite = pygame.Surface((math.ceil(max_x), math.ceil(max_y)))
-        pygame.draw.polygon(sprite, Player.COLOUR, polygon_points)
+        pygame.draw.polygon(sprite, Player.COLOUR, model)
 
+        (center_x, center_y) = center
         (pos_x, pos_y) = self.pos
         render_pos = (pos_x - center_x, pos_y - center_y)
         return sprite, render_pos
-
 
     def __repr__(self):
         (x_pos, y_pos) = self.pos
@@ -144,7 +106,7 @@ class Player:
 
     def handle_keydown(self, event):
         if event.key == LEFT_KEY:
-            self.turning = -1
+            self.turning = - 1
         elif event.key == RIGHT_KEY:
             self.turning = 1
         elif event.key == FORWARD_KEY:
