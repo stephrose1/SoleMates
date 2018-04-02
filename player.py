@@ -82,8 +82,8 @@ class Player:
         model = [rotate(p, self.dir) for p in Player.MODEL]
         center = rotate(Player.MODEL_CENTER, self.dir)
 
-        model = [shear_x(p, -1) for p in model]
-        center = shear_x(center, -1)
+        # model = [shear_x(p, -1) for p in model]
+        # center = shear_x(center, -1)
 
         (min_x, min_y, _, _) = bbox(model)
 
@@ -97,7 +97,8 @@ class Player:
 
         (center_x, center_y) = center
         (pos_x, pos_y) = self.pos
-        render_pos = shear_x((pos_x - center_x, pos_y - center_y), -1)
+        # render_pos = shear_x((pos_x - center_x, pos_y - center_y), -1)
+        render_pos = (pos_x - center_x, pos_y - center_y)
 
         return sprite, render_pos
 
