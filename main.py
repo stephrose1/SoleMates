@@ -1,6 +1,7 @@
 import sys
 import pygame
 from player import Player
+from spritesheet import SpriteSheet
 
 pygame.init()
 
@@ -9,7 +10,7 @@ black = 0, 0, 0
 
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-player = Player()
+player = Player(SpriteSheet('assets/player.png'))
 
 game_font = pygame.font.Font("helsinki.ttf", 60)
 system_font = pygame.font.SysFont("monospace", 10)
