@@ -1,5 +1,5 @@
 import pygame
-
+from animation import Animation
 
 class SpriteSheet(object):
     def __init__(self, filename):
@@ -29,3 +29,8 @@ class SpriteSheet(object):
         tuples = [(rect[0] + rect[2] * x, rect[1], rect[2], rect[3])
                   for x in range(image_count)]
         return self.images_at(tuples, colorkey)
+
+    def load_anim(self, row, w, h, frame_count, duration):
+        bbox = (0, h * row, w, (h * row) + h)
+        frames = self.load_strip(bbox, frame_count)
+        return Animation(frames, duration)
