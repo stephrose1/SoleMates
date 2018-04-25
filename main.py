@@ -2,7 +2,7 @@ import sys
 import pygame
 from socky import Socky
 from spritesheet import SpriteSheet
-from game import Game, MENU_STATE
+from game import Game, MENU_MODE
 
 pygame.init()
 
@@ -13,7 +13,7 @@ screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 player = Socky(SpriteSheet('assets/socky.png'))
 game = Game(screen)
-game.set_state(MENU_STATE)
+game.set_mode(MENU_MODE)
 
 game_font = pygame.font.Font("helsinki.ttf", 60)
 system_font = pygame.font.SysFont("monospace", 10)
@@ -21,8 +21,10 @@ system_font = pygame.font.SysFont("monospace", 10)
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            # intercept quit event
             sys.exit()
         else:
+            # dispatch all other events to the game
             game.handle_event(event)
 
     game.tick()
