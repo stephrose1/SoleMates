@@ -1,48 +1,91 @@
-import sys
 import pygame
-from player import Player
-from spritesheet import SpriteSheet
+import sys
+from os import path
+from settings import *
+from sprites import *
+from tilemap import *
 
-pygame.init()
 
-size = width, height = 1024, 768
-black = 0, 0, 0
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption(TITLE)
+        self.clock = pygame.time.Clock()
+        self.load_data()
 
-screen = pygame.display.set_mode(size)
-clock = pygame.time.Clock()
-player = Player(SpriteSheet('assets/player.png'))
+    def load_data(self):
+        game_folder = path.dirname(__file__)
+        img_folder = path.join(game_folder, 'img')
+        self.map = Map(path.join(game_folder, 'map2.txt'))
+        self.player_img = pygame.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
 
-game_font = pygame.font.Font("helsinki.ttf", 60)
-system_font = pygame.font.SysFont("monospace", 10)
+    def new(self):
+        self.all_sprites = pygame.sprite.Group()
+        self.walls = pygame.sprite.Group()
+        self.furniture = pygame.sprite.Group()
+        for row, tiles in enumerate(self.map.data):
+            for col, tile in enumerate(tiles):
+                if tile == '1':
+                    Wall(self, col, row)
+                if tile == 'P':
+                    self.player = Player(self, col, row)
+                if tile == '2':
+                    Furniture(self, col, row)
+        self.camera = Camera(self.map.width, self.map.height)
 
-while 1:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        # send key events to the player
-        if event.type == pygame.KEYDOWN:
-            player.handle_keydown(event)
-        if event.type == pygame.KEYUP:
-            player.handle_keyup(event)
 
-    # render fps label
-    fps_label = system_font.render('%.2f' % clock.get_fps(), True, (255, 0, 0))
+    def run(self):
+        # game loop
+        self.playing = True
+        while self.playing:
+            self.dt = self.clock.tick(FPS) / 1000
+            self.events()
+            self.update()
+            self.draw()
 
-    # render player debug info (this calls __repr__ on the player)
-    player_debug_label = system_font.render(str(player), True, (255, 0, 0))
+    def quit(self):
+        pygame.quit()
+        sys.exit()
 
-    # update and render the player
-    player.update()
-    player_sprite, player_pos = player.render()
+    def update(self):
+        self.all_sprites.update()
+        self.camera.update(self.player)
 
-    # draw things on the screen
-    screen.fill(black)
-    screen.blit(fps_label, (0, 0))
-    screen.blit(player_debug_label, (0, 10))
-    screen.blit(player_sprite, player_pos)
+    def draw_grid(self):
+        for x in range(0, WIDTH, TILESIZE):
+            pygame.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
+        for y in range(0, HEIGHT, TILESIZE):
+            pygame.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
-    # flip the buffer
-    pygame.display.flip()
+    def draw(self):     #_render
+        self.screen.fill(BGCOLOUR)
+        self.draw_grid()
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+        pygame.display.flip()
 
-    # limit the game to 30 fps
-    clock.tick(30)
+    def events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.quit()
+
+    def show_start_screen(self):
+        # game start screen
+        pass
+
+    def show_go_screen(self):
+        # gameover screen
+        pass
+
+
+testgame = Game()
+testgame.show_start_screen()
+while True:
+    testgame.new()
+    testgame.run()
+
+pygame.quit()
