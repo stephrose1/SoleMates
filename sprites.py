@@ -70,6 +70,20 @@ class Clothes(pygame.sprite.Sprite):
         self.rect.y = self.pos.y
 
 
+class Spider(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.mobs
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.spider_img
+        self.rect = self.image.get_rect()
+        self.pos = vec(x, y)
+
+    def update(self):
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
+
+
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
         self.groups = game.obstacles
@@ -87,6 +101,22 @@ class Robot(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = game.robot_img
+        self.rect = self.image.get_rect()
+        self.vel = vec(0, 0)
+        self.pos = vec(x, y)
+
+    def update(self):
+        self.pos += self.vel * self.game.dt
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
+
+
+class Vacuum(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.vacuum_img
         self.rect = self.image.get_rect()
         self.vel = vec(0, 0)
         self.pos = vec(x, y)

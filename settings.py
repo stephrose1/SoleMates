@@ -29,6 +29,7 @@ SPIDER_IMG = 'spider.png'
 
 # boss settings
 ROBOT_IMG = 'robot.png'
+VACUUM_IMG = 'vacuum.png'
 
 # projectile settings
 ZAP_IMG = 'zap.png'
