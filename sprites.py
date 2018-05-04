@@ -2,6 +2,7 @@ import pygame
 from settings import *
 vec = pygame.math.Vector2
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
@@ -10,7 +11,7 @@ class Player(pygame.sprite.Sprite):
         self.image = game.player_img
         self.rect = self.image.get_rect()
         self.vel = vec(0, 0)
-        self.pos = vec(x, y) * TILESIZE
+        self.pos = vec(x, y)
 
     def get_keys(self):
         self.vel = vec(0, 0)
@@ -26,9 +27,9 @@ class Player(pygame.sprite.Sprite):
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
 
-    def collide_with_walls(self, dir):
+    def collide_with_obstacles(self, dir):
         if dir == 'x':
-            hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+            hits = pygame.sprite.spritecollide(self, self.game.obstacles, False)
             if hits:
                 if self.vel.x > 0:
                     self.pos.x = hits[0].rect.left - self.rect.width
@@ -37,7 +38,7 @@ class Player(pygame.sprite.Sprite):
                 self.vel.x = 0
                 self.rect.x = self.pos.x
         if dir == 'y':
-            hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+            hits = pygame.sprite.spritecollide(self, self.game.obstacles, False)
             if hits:
                 if self.vel.y > 0:
                     self.pos.y = hits[0].rect.top - self.rect.height
@@ -46,38 +47,51 @@ class Player(pygame.sprite.Sprite):
                 self.vel.y = 0
                 self.rect.y = self.pos.y
 
-
     def update(self):
         self.get_keys()
         self.pos += self.vel * self.game.dt
         self.rect.x = self.pos.x
-        self.collide_with_walls('x')
+        self.collide_with_obstacles('x')
         self.rect.y = self.pos.y
-        self.collide_with_walls('y')
+        self.collide_with_obstacles('y')
 
 
-class Wall(pygame.sprite.Sprite):
+class Clothes(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.walls
+        self.groups = game.all_sprites, game.mobs
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pygame.Surface((TILESIZE, TILESIZE))
-        self.image.fill(GREEN)
+        self.image = game.clothes_img
         self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
-        self.rect.x = self.x * TILESIZE
-        self.rect.y = self.y * TILESIZE
+        self.pos = vec(x, y)
 
-class Furniture(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.walls
+    def update(self):
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
+
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.obstacles
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pygame.Surface((TILESIZE, TILESIZE))
-        self.image.fill(RED)
-        self.rect = self.image.get_rect()
+        self.rect = pygame.Rect(x, y, w, h)
         self.x = x
         self.y = y
-        self.rect.x = self.x * TILESIZE
-        self.rect.y = self.y * TILESIZE
+        self.rect.x = x
+        self.rect.y = y
+
+class Robot(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.robot_img
+        self.rect = self.image.get_rect()
+        self.vel = vec(0, 0)
+        self.pos = vec(x, y)
+
+    def update(self):
+        self.pos += self.vel * self.game.dt
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
