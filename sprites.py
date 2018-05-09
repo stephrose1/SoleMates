@@ -12,9 +12,20 @@ class Spritesheet:
         image.blit(self.spritesheet, (0, 0), (x, y, width, height))
         return image
 
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.obstacles
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.rect = pygame.Rect(x, y, w, h)
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
+        self.groups = game.all_sprites, game.socks
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
 
@@ -27,6 +38,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.vel = vec(0, 0)
         self.pos = vec(x, y)
+
+        self.health = PLAYER_HEALTH
+        self.lives = PLAYER_LIVES
 
     def load_images(self):
         self.neutral_frames = [self.game.player_spritesheet.get_image(60, 0, 32, 32),
@@ -78,6 +92,7 @@ class Player(pygame.sprite.Sprite):
                 self.vel.y = 0
                 self.rect.y = self.pos.y
 
+
     def update(self):
         self.animate()
         self.get_keys()
@@ -86,6 +101,13 @@ class Player(pygame.sprite.Sprite):
         self.collide_with_obstacles('x')
         self.rect.y = self.pos.y
         self.collide_with_obstacles('y')
+
+        if self.health <= 0:
+            self.lives -= 1
+        if self.lives <= 0:
+            #gameover goes here
+            pass
+
 
     def animate(self):
         now = pygame.time.get_ticks()
@@ -166,17 +188,6 @@ class Spider(pygame.sprite.Sprite):
         self.rect.y = self.pos.y
 
 
-class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, w, h):
-        self.groups = game.obstacles
-        pygame.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.rect = pygame.Rect(x, y, w, h)
-        self.x = x
-        self.y = y
-        self.rect.x = x
-        self.rect.y = y
-
 class Robot(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
@@ -184,6 +195,7 @@ class Robot(pygame.sprite.Sprite):
         self.game = game
 
         self.attacking = True
+        self.last_shot = 0
         self.current_frame = 0
         self.last_update = 0
         self.load_images()
@@ -192,6 +204,15 @@ class Robot(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.vel = vec(0, 0)
         self.pos = vec(x, y)
+
+        self.health = ROBOT_HEALTH
+
+    def attack(self):
+        now = pygame.time.get_ticks()
+        if self.attacking:
+            if now - self.last_shot > ZAP_RATE:
+                self.last_shot = now
+                Zap(self.game)
 
     def load_images(self):
         self.frames = [self.game.robot_spritesheet.get_image(248, 0, 123, 208),
@@ -206,6 +227,17 @@ class Robot(pygame.sprite.Sprite):
         for frame in self.frames:
             frame.set_colorkey(BLACK)
 
+    def draw_health(self):
+        if self.health > 6:
+            colour = GREEN
+        elif self.health > 3:
+            colour = YELLOW
+        else:
+            colour = RED
+        width = int(self.health * 5)
+        self.health_bar = pygame.Rect(0, 0, width, 5)
+        pygame.draw.rect(self.image, colour, self.health_bar)
+
     def animate(self):
         now = pygame.time.get_ticks()
         if self.attacking:
@@ -215,13 +247,33 @@ class Robot(pygame.sprite.Sprite):
                 self.image = self.frames[self.current_frame]
                 self.rect = self.image.get_rect()
 
-
-
     def update(self):
         self.animate()
+        self.attack()
         self.pos += self.vel * self.game.dt
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
+
+class Zap(pygame.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites, game.zaps
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.zap_img
+        self.rect = self.image.get_rect()
+        self.rect.x = 1088
+        self.rect.y = 480
+        self.vel = vec(ZAP_SPEED, 0)
+        self.pos = vec(self.rect.x, self.rect.y)
+        self.spawn_time = pygame.time.get_ticks()
+
+    def update(self):
+        self.pos -= self.vel * self.game.dt
+        self.rect.x = self.pos.x
+        if pygame.sprite.spritecollideany(self, self.game.obstacles):
+            self.kill()
+        if pygame.time.get_ticks() - self.spawn_time > ZAP_LIFETIME:
+            self.kill()
 
 
 class Vacuum(pygame.sprite.Sprite):
