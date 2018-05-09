@@ -21,14 +21,14 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 # player settings
 PLAYER_SPEED = 300
-PLAYER_IMG = 'socky_neutral_1.png'
+PLAYER_SPRITESHEET = 'socky_spritesheet.png'
 
 # mob settings
-CLOTHES_IMG = 'clothes.png'
+CLOTHES_SPRITESHEET = 'clothes_spritesheet.png'
 SPIDER_IMG = 'spider.png'
 
 # boss settings
-ROBOT_IMG = 'robot.png'
+ROBOT_SPRITESHEET = 'robot_spritesheet.png'
 VACUUM_IMG = 'vacuum.png'
 
 # projectile settings
