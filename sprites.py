@@ -238,3 +238,13 @@ class Vacuum(pygame.sprite.Sprite):
         self.pos += self.vel * self.game.dt
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
+
+class Item(pygame.sprite.Sprite):
+    def __init__(self, game, pos, type,):
+        self.groups = game.all_sprites, game.items
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.item_images[type]
+        self.rect = self.image.get_rect()
+        self.type = type
+        self.rect.center = pos

@@ -36,3 +36,6 @@ ZAP_IMG = 'zap.png'
 ZAP_SPEED = 500
 ZAP_LIFETIME = 1000
 ZAP_RATE = 150
+
+# PowerUps
+ITEM_IMAGES = {'health': 'bolt_gold.png'}
