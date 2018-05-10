@@ -38,7 +38,6 @@ VACUUM_IMG = 'vacuum.png'
 # projectile settings
 ZAP_IMG = 'zap.png'
 ZAP_SPEED = 400
-ZAP_LIFETIME = 1000
 ZAP_RATE = 800
 ZAP_SPREAD = 100
 ZAP_DAMAGE = 1
@@ -57,3 +56,4 @@ HEALTH_BORDER = 'healthbar.png'
 # directions
 DIR_HORIZ = 'x'
 DIR_VERT = 'y'
+
