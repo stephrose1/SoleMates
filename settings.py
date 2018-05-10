@@ -10,7 +10,7 @@ YELLOW = (255, 255, 0)
 #game options
 WIDTH = 1024
 HEIGHT = 768
-TITLE = 'My game'
+TITLE = 'Sole Mates'
 FPS = 60
 BGCOLOUR = DARKGREY
 
@@ -40,17 +40,20 @@ ZAP_IMG = 'zap.png'
 ZAP_SPEED = 400
 ZAP_LIFETIME = 1000
 ZAP_RATE = 800
-ZAP_SPREAD = 5
+ZAP_SPREAD = 100
 ZAP_DAMAGE = 1
 
 # hud settings
 BAR_LENGTH = 100
 BAR_HEIGHT = 30
-BAR_X = 20
-BAR_Y = 20
 INVENTORY_IMG = 'inventory.png'
 ZERO_LIVES = 'zerolives.png'
 ONE_LIVES = 'onelives.png'
 TWO_LIVES = 'twolives.png'
 THREE_LIVES = 'threelives.png'
 FOUR_LIVES = 'fourlives.png'
+HEALTH_BORDER = 'healthbar.png'
+
+# directions
+DIR_HORIZ = 'x'
+DIR_VERT = 'y'
