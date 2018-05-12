@@ -39,6 +39,9 @@ class Game:
         self.robot_spritesheet = Spritesheet(path.join(img_folder, ROBOT_SPRITESHEET))
         self.spider_img = pygame.image.load(path.join(img_folder, SPIDER_IMG)).convert_alpha()
         self.vacuum_img = pygame.image.load(path.join(img_folder, VACUUM_IMG)).convert_alpha()
+        self.item_images = {}
+        for item in ITEM_IMAGES:
+            self.item_images[item] = pygame.image.load(path.join(img_folder, ITEM_IMAGES[item])).convert_alpha()
 
         #items
         self.zap_img = pygame.image.load(path.join(img_folder, ZAP_IMG)).convert_alpha()
@@ -59,11 +62,15 @@ class Game:
         self.mobs = pygame.sprite.Group()
         self.zaps = pygame.sprite.Group()
         self.socks = pygame.sprite.Group()
+        self.items = pygame.sprite.Group()
+ 
 
         #fetches collision object data from tmx file
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == 'player':
                 self.player = Player(self, tile_object.x, tile_object.y)
+                obj_center = vec(tile_object.x + tile_object.width / 2,
+                                 tile_object.y + tile_object.height / 2)
             if tile_object.name == 'obstacle':
                 Obstacle(self, tile_object.x, tile_object.y,
                          tile_object.width, tile_object.height)
@@ -80,7 +87,6 @@ class Game:
                     self.clothes = Clothes(self, tile_object.x, tile_object.y)
                 if self.currentlevel == 2:
                     self.spider = Spider(self, tile_object.x, tile_object.y)
-
 
         self.camera = Camera(self.map.width, self.map.height)
 
